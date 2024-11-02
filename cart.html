@@ -132,73 +132,89 @@
         </div>
     </div>
     <script>
-        const cartItems = [];
-
-        const cartItemsContainer = document.getElementById('cart-items');
-        const cartTotal = document.getElementById('cart-total');
-
-        function updateCart() {
-            cartItemsContainer.innerHTML = '';
-            let total = 0;
-
-            cartItems.forEach((item, index) => {
-                const subTotal = item.price * item.quantity;
-                const tax = subTotal * 0.05;
-                const totalItemPrice = subTotal - item.discount + tax;
-                total += totalItemPrice;
-
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>$${item.price}</td>
-                    <td>
-                        <input type="number" value="${item.quantity}" min="1" data-index="${index}" class="quantity-input">
-                    </td>
-                    <td>$${subTotal}</td>
-                    <td>$${item.discount}</td>
-                    <td>$${tax.toFixed(2)}</td>
-                    <td>$${totalItemPrice.toFixed(2)}</td>
-                    <td>
-                        <button data-index="${index}" class="remove-button">Remove</button>
-                    </td>
-                `;
-                cartItemsContainer.appendChild(row);
-            });
-
-            cartTotal.textContent = total.toFixed(2);
+    // Retrieve and parse the cart items from localStorage
+    function loadCartFromLocalStorage() {
+        const savedCart = localStorage.getItem('cartItems');
+        if (savedCart) {
+            cartItems.push(...JSON.parse(savedCart));
         }
-
-        cartItemsContainer.addEventListener('change', (event) => {
-            if (event.target.classList.contains('quantity-input')) {
-                const index = event.target.dataset.index;
-                const newQuantity = event.target.value;
-                cartItems[index].quantity = parseInt(newQuantity, 10);
-                updateCart();
-            }
-        });
-
-        cartItemsContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('remove-button')) {
-                const index = event.target.dataset.index;
-                cartItems.splice(index, 1);
-                updateCart();
-            }
-        });
-
-        document.getElementById('clear-all-button').addEventListener('click', () => {
-            cartItems.length = 0;
-            updateCart();
-        });
-
-        document.getElementById('checkout-button').addEventListener('click', () => {
-            window.location.href = 'Checkout.html';
-        });
-
-        document.getElementById('close-button').addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-
         updateCart();
-    </script>
+    }
+
+    // Save cart items to localStorage
+    function saveCartToLocalStorage() {
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    }
+
+    const cartItems = [];
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+
+    function updateCart() {
+        cartItemsContainer.innerHTML = '';
+        let total = 0;
+
+        cartItems.forEach((item, index) => {
+            const subTotal = item.price * item.quantity;
+            const tax = subTotal * 0.05;
+            const totalItemPrice = subTotal - item.discount + tax;
+            total += totalItemPrice;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>$${item.price}</td>
+                <td>
+                    <input type="number" value="${item.quantity}" min="1" data-index="${index}" class="quantity-input">
+                </td>
+                <td>$${subTotal}</td>
+                <td>$${item.discount}</td>
+                <td>$${tax.toFixed(2)}</td>
+                <td>$${totalItemPrice.toFixed(2)}</td>
+                <td>
+                    <button data-index="${index}" class="remove-button">Remove</button>
+                </td>
+            `;
+            cartItemsContainer.appendChild(row);
+        });
+
+        cartTotal.textContent = total.toFixed(2);
+        saveCartToLocalStorage();
+    }
+
+    cartItemsContainer.addEventListener('change', (event) => {
+        if (event.target.classList.contains('quantity-input')) {
+            const index = event.target.dataset.index;
+            const newQuantity = event.target.value;
+            cartItems[index].quantity = parseInt(newQuantity, 10);
+            updateCart();
+        }
+    });
+
+    cartItemsContainer.addEventListener('click', (event) => {
+        if (event.target.classList.contains('remove-button')) {
+            const index = event.target.dataset.index;
+            cartItems.splice(index, 1);
+            updateCart();
+        }
+    });
+
+    document.getElementById('clear-all-button').addEventListener('click', () => {
+        cartItems.length = 0;
+        updateCart();
+    });
+
+    document.getElementById('checkout-button').addEventListener('click', () => {
+        window.location.href = 'Checkout.html';
+    });
+
+    document.getElementById('close-button').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+
+    // Load cart items from localStorage on page load
+    loadCartFromLocalStorage();
+</script>
+
 </body>
 </html>
